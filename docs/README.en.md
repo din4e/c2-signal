@@ -1,0 +1,180 @@
+# C2 Signal
+
+C2 Signal is a defensive, multi-engine artifact triage console. It routes uploaded files to the detector that understands their format, then presents the exact rules that fired in a compact analyst interface.
+
+Current release: **v0.1.0** · License: **MIT**
+
+[中文](../README.md)
+
+## Interface
+
+### Detection console
+
+![C2 Signal detection console](assets/dashboard.png)
+
+### Cobalt Strike findings
+
+Each result includes detector status, SHA-256, grouped findings, severity and rule provenance.
+
+![Cobalt Strike detection result](assets/detection-result.png)
+
+### Exact YARA rule location
+
+Open a matched YARA rule to inspect its source file at the exact declaration and line number.
+
+![YARA source viewer](assets/rule-source-viewer.png)
+
+### Local YARA management
+
+Create, edit, validate, enable and disable local rules from the browser.
+
+![Local YARA rule manager](assets/yara-manager.png)
+
+## What it does
+
+| Input | Engine | Detection content |
+|---|---|---|
+| Binaries, archives and documents | YARA | Bundled local rules plus optional community repositories |
+| Windows EVTX | Chainsaw | Optional SigmaHQ rules |
+| PCAP / PCAPNG | Suricata | Local rules plus Suricata protocol-event rules |
+
+Key capabilities:
+
+- Asynchronous uploads with SHA-256, media-type and executable-format identification.
+- Dedicated Cobalt Strike Beacon, BOF and decoded-configuration triage rules.
+- Persistent scan history with result deletion.
+- Click-through YARA source viewer with exact rule-line highlighting.
+- Browser-based local YARA editing, validation, enable/disable and hot reload.
+- Next.js static frontend served by a small Go API.
+- Rootless, read-only Docker runtime with dropped capabilities and resource limits.
+
+Uploaded artifacts are never executed. A clean result means only that the loaded rules did not match; it is not a safety verdict.
+
+## Quick start
+
+Requirements: Docker with Compose v2. Git is required only when installing optional community rules.
+
+Start with the bundled local rules:
+
+```bash
+make up
+```
+
+Install the pinned community rule repositories, then restart with the rules overlay:
+
+```bash
+make rules
+make up
+```
+
+Open <http://127.0.0.1:8080>.
+
+Useful commands:
+
+```bash
+make logs
+make down
+make test
+```
+
+The default bind address is localhost. To expose the service on every interface:
+
+```bash
+C2_SIGNAL_BIND=0.0.0.0 make up
+```
+
+Do not expose this mode to an untrusted network. The current API has no authentication and includes rule-management endpoints.
+
+## Rule repositories
+
+`scripts/fetch-rules.sh` installs reviewed, pinned revisions under the ignored `rulesets/` directory. Those repositories are not redistributed as part of C2 Signal. See [THIRD_PARTY.md](../THIRD_PARTY.md) for sources and license boundaries.
+
+The application remains usable without community rules:
+
+- Local Cobalt Strike YARA ships in the image.
+- Local YARA created in the UI persists in the `yara-local` volume.
+- Suricata retains its built-in protocol-event rules.
+- EVTX hunting is unavailable until Sigma rules are installed.
+
+## Architecture
+
+```text
+Browser
+  └─ Go HTTP API / static server
+       ├─ ordinary artifact ── YARA
+       ├─ Windows EVTX ─────── Chainsaw + Sigma
+       └─ PCAP / PCAPNG ───── Suricata
+
+Persistent Docker volumes
+  ├─ scanner-data  scan result JSON
+  └─ yara-local    analyst-managed YARA
+```
+
+The Next.js application uses static export; Node.js is not present in the runtime image.
+
+## API
+
+```text
+GET    /api/v1/health
+GET    /api/v1/rules
+GET    /api/v1/scans?limit=30
+POST   /api/v1/scans
+GET    /api/v1/scans/{id}
+DELETE /api/v1/scans/{id}
+GET    /api/v1/scans/{id}/rule?name={yara_rule}
+GET    /api/v1/yara/rules
+GET    /api/v1/yara/rules/{name}
+PUT    /api/v1/yara/rules/{name}
+PATCH  /api/v1/yara/rules/{name}/enabled
+```
+
+Uploads use `multipart/form-data` with field name `file` and return `202 Accepted` plus a scan ID.
+
+## Configuration
+
+| Variable | Default | Purpose |
+|---|---:|---|
+| `C2_SIGNAL_BIND` | `127.0.0.1` | Host address published by Compose |
+| `C2_SIGNAL_PORT` | `8080` | Host port published by Compose |
+| `MAX_UPLOAD_BYTES` | `104857600` | Maximum upload size |
+| `SCAN_TIMEOUT_SECONDS` | `180` | Per-scan timeout |
+| `MAX_CONCURRENT_SCANS` | `2` | Concurrent scan limit |
+| `KEEP_UPLOADS` | `false` | Keep uploaded artifacts after scanning |
+| `HISTORY_DIR` | `/data/history` | Persistent result directory |
+| `HISTORY_LIMIT` | `200` | Maximum retained scan records |
+| `MANAGED_YARA_ROOT` | `/rules/yara/local` | UI-managed YARA directory |
+| `YARA_ROOTS` | `/rules/yara` | Colon-separated YARA roots |
+| `SIGMA_ROOT` | `/rules/sigma` | Sigma rule root |
+| `SURICATA_RULE_ROOTS` | `/rules/suricata:/opt/suricata/share/suricata/rules` | Colon-separated Suricata roots |
+
+## Development
+
+Frontend:
+
+```bash
+cd frontend
+npm ci
+npm run build
+```
+
+Backend:
+
+```bash
+cd backend
+go test ./...
+go run ./cmd/server
+```
+
+The local Go process requires YARA, Chainsaw and Suricata on `PATH` to execute scans. Unit tests do not require all engines.
+
+## Security
+
+Read [SECURITY.md](../SECURITY.md) before deploying or reporting a vulnerability. Malicious parser inputs still create risk even though artifacts are not executed. Production deployments should use an isolated host or VM, egress controls, authentication, TLS and request quotas.
+
+## Contributing
+
+See [CONTRIBUTING.md](../CONTRIBUTING.md). Detection contributions must include provenance, test material that is safe to redistribute, and an explicit license. Release history is recorded in [CHANGELOG.md](../CHANGELOG.md).
+
+## License
+
+C2 Signal is released under the [MIT License](../LICENSE). The bundled Source Han Sans subset remains under its upstream license in `frontend/public/fonts/LICENSE.txt`; optional downloaded rule repositories retain their own licenses.

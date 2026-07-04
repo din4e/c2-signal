@@ -1,0 +1,2 @@
+# Add reviewed organization-specific Suricata rules below.
+# This intentionally empty ruleset keeps PCAP parsing available without claiming a detection.

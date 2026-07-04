@@ -1,0 +1,22 @@
+# Frontend build and dependency output
+/frontend/node_modules/
+/frontend/.next/
+/frontend/out/
+
+# Downloaded third-party detection content
+/rulesets/
+
+# Runtime and local configuration
+/.env
+/data/
+*.log
+*.pid
+
+# Local tooling
+.DS_Store
+.idea/
+.vscode/
+
+# Go build output
+/backend/scanner
+coverage.out

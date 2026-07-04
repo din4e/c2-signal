@@ -1,0 +1,47 @@
+services:
+  scanner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VERSION: "0.1.0"
+    image: c2-signal:local
+    restart: unless-stopped
+    ports:
+      - "${C2_SIGNAL_BIND:-127.0.0.1}:${C2_SIGNAL_PORT:-8080}:8080"
+    environment:
+      MAX_UPLOAD_BYTES: "104857600"
+      SCAN_TIMEOUT_SECONDS: "180"
+      MAX_CONCURRENT_SCANS: "2"
+      KEEP_UPLOADS: "false"
+      HISTORY_DIR: /data/history
+      HISTORY_LIMIT: "200"
+      MANAGED_YARA_ROOT: /rules/yara/local
+      YARA_ROOTS: /rules/yara
+      SIGMA_ROOT: /rules/sigma
+      CHAINSAW_MAPPING: /rules/mappings/sigma-event-logs-all.yml
+      SURICATA_RULE_ROOTS: /rules/suricata:/opt/suricata/share/suricata/rules
+    volumes:
+      - scanner-data:/data
+      - yara-local:/rules/yara/local
+      - ./rules/suricata:/rules/suricata:ro
+    read_only: true
+    tmpfs:
+      - /tmp:size=512m,mode=1777
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    mem_limit: 2g
+    cpus: 2.0
+    networks:
+      - scanner-isolated
+
+volumes:
+  scanner-data:
+  yara-local:
+
+networks:
+  scanner-isolated:
+    driver: bridge

@@ -1,0 +1,8 @@
+services:
+  scanner:
+    volumes:
+      - ./rulesets/yara-rules:/rules/yara/community:ro
+      - ./rulesets/protections-artifacts/yara/rules:/rules/yara/elastic:ro
+      - ./rulesets/cobaltstrike-yara:/rules/yara/cobaltstrike:ro
+      - ./rulesets/detect-it-easy/yara_rules:/rules/yara/die:ro
+      - ./rulesets/sigma/rules:/rules/sigma:ro

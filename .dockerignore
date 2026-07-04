@@ -1,0 +1,8 @@
+frontend/node_modules
+frontend/.next
+frontend/out
+backend/scanner
+rulesets
+.env
+.git
+*.log

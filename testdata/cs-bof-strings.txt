@@ -1,0 +1,3 @@
+Safe detector fixture only. It is not executable and contains no Cobalt Strike payload.
+BeaconDataParse
+BeaconOutput
