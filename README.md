@@ -6,6 +6,100 @@ Docker 启动的多引擎制品检测工作台：Next.js 静态前端 + Go API +
 
 当前版本：**v0.1.0** · 开源许可证：**MIT**
 
+## Docker 部署与操作
+
+### 环境要求
+
+- Docker Engine 或 Docker Desktop。
+- Docker Compose v2（可执行 `docker compose version` 验证）。
+- Git；仅拉取可选社区规则时需要。
+- 首次构建会在镜像内编译 Chainsaw 和 Suricata，耗时取决于机器与网络；后续构建会复用 Docker 缓存。
+
+### 1. 克隆并启动
+
+仅使用项目内置规则：
+
+```bash
+git clone https://github.com/din4e/c2-signal.git
+cd c2-signal
+cp .env.example .env
+make up
+```
+
+打开 <http://127.0.0.1:8080>，或检查服务状态：
+
+```bash
+./scripts/compose.sh ps
+curl http://127.0.0.1:8080/api/v1/health
+```
+
+### 2. 启用完整社区规则
+
+以下命令会把固定版本的 YARA、Cobalt Strike 和 Sigma 仓库下载到 Git 忽略的 `rulesets/` 目录，然后按只读方式挂载到容器：
+
+```bash
+make rules
+make up
+```
+
+`scripts/compose.sh` 会自动检测规则目录。未执行 `make rules` 时仍可使用内置 Cobalt Strike YARA 和 Suricata 协议事件规则，但无法执行完整的 Sigma EVTX 检测。
+
+### 3. 常用容器操作
+
+| 操作 | 命令 |
+|---|---|
+| 后台启动或应用配置变更 | `make up` |
+| 查看容器状态 | `./scripts/compose.sh ps` |
+| 持续查看扫描器日志 | `make logs` |
+| 重启扫描器 | `./scripts/compose.sh restart scanner` |
+| 构建镜像 | `make build` |
+| 不使用缓存重新构建 | `./scripts/compose.sh build --no-cache scanner` |
+| 停止并删除容器和网络 | `make down` |
+| 停止并同时删除历史与本地 YARA 卷 | `./scripts/compose.sh down -v` |
+
+`make down` 不会删除扫描历史和页面管理的本地 YARA。只有最后一条带 `-v` 的命令会永久删除这两个数据卷，执行前应确认数据不再需要。
+
+### 4. 修改监听地址与端口
+
+编辑 `.env`：
+
+```dotenv
+C2_SIGNAL_BIND=127.0.0.1
+C2_SIGNAL_PORT=8080
+```
+
+修改后运行 `make up` 应用配置。也可以仅对当前命令临时覆盖：
+
+```bash
+C2_SIGNAL_PORT=18080 make up
+```
+
+如需允许其他主机访问：
+
+```bash
+C2_SIGNAL_BIND=0.0.0.0 make up
+```
+
+当前 API 没有身份认证，并包含规则管理接口。不要直接暴露到不可信网络；至少应配置防火墙来源限制，生产环境应在前方增加认证、TLS、请求大小限制和访问审计。
+
+### 5. 更新与重建
+
+```bash
+git pull --ff-only
+make build
+make up
+```
+
+社区规则使用项目锁定的提交版本。项目更新了锁定版本时，脚本会拒绝覆盖现有的不同版本目录；确认不需要保留后，删除 `rulesets/`，再执行 `make rules`。
+
+### 6. 数据与资源限制
+
+- `scanner-data` 卷：扫描历史与结果 JSON。
+- `yara-local` 卷：通过页面创建和编辑的本地 YARA。
+- 上传制品默认在扫描结束后删除，不写入持久化卷。
+- 容器默认限制为 2 CPU、2 GB 内存、256 PID；最大上传 100 MB，并发扫描数为 2，单次扫描超时 180 秒。
+- 如遇启动或扫描异常，先执行 `./scripts/compose.sh ps` 和 `make logs`；端口占用时修改 `C2_SIGNAL_PORT`。
+
 ## 界面预览
 
 ### 检测控制台
@@ -29,32 +123,6 @@ Docker 启动的多引擎制品检测工作台：Next.js 静态前端 + Go API +
 支持新建、编辑、语法校验、启用和停用本地规则。
 
 ![本地 YARA 配置中心](docs/assets/yara-manager.png)
-
-## 快速启动
-
-仅使用内置本地规则启动：
-
-```bash
-make up
-```
-
-初始化固定版本的社区规则后启动完整规则集：
-
-```bash
-make rules
-make up
-```
-
-打开：<http://127.0.0.1:8080>
-
-查看日志或停止：
-
-```bash
-make logs
-make down
-```
-
-首次构建会编译 Chainsaw，时间较长。后续启动使用 Docker 缓存。
 
 ## 检测路由
 

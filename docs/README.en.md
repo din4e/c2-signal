@@ -6,6 +6,91 @@ Current release: **v0.1.0** · License: **MIT**
 
 [中文](../README.md)
 
+## Docker operations
+
+### Requirements
+
+- Docker Engine or Docker Desktop.
+- Docker Compose v2; verify it with `docker compose version`.
+- Git, only when downloading the optional community rules.
+- The first image build compiles Chainsaw and Suricata. Later builds reuse the Docker cache.
+
+### Start the bundled rule set
+
+```bash
+git clone https://github.com/din4e/c2-signal.git
+cd c2-signal
+cp .env.example .env
+make up
+```
+
+Open <http://127.0.0.1:8080>, then verify the service if needed:
+
+```bash
+./scripts/compose.sh ps
+curl http://127.0.0.1:8080/api/v1/health
+```
+
+### Enable the full community rule set
+
+```bash
+make rules
+make up
+```
+
+The pinned repositories are downloaded to the ignored `rulesets/` directory and mounted read-only. `scripts/compose.sh` automatically selects the rules overlay when those checkouts exist. Without them, bundled Cobalt Strike YARA and Suricata protocol-event rules remain available, but full Sigma EVTX detection does not.
+
+### Common operations
+
+| Operation | Command |
+|---|---|
+| Start in the background or apply configuration | `make up` |
+| Show container status | `./scripts/compose.sh ps` |
+| Follow scanner logs | `make logs` |
+| Restart the scanner | `./scripts/compose.sh restart scanner` |
+| Build the image | `make build` |
+| Rebuild without cache | `./scripts/compose.sh build --no-cache scanner` |
+| Remove containers and network | `make down` |
+| Also permanently remove history and local YARA volumes | `./scripts/compose.sh down -v` |
+
+`make down` preserves both persistent volumes. Use `down -v` only when their contents are no longer required.
+
+### Address and port
+
+Edit `.env`, then run `make up`:
+
+```dotenv
+C2_SIGNAL_BIND=127.0.0.1
+C2_SIGNAL_PORT=8080
+```
+
+Values can also be overridden for one command:
+
+```bash
+C2_SIGNAL_PORT=18080 make up
+C2_SIGNAL_BIND=0.0.0.0 make up
+```
+
+Do not expose the second form to an untrusted network. The API has no authentication and includes rule-management endpoints. Use firewall restrictions and an authenticated TLS reverse proxy for shared deployments.
+
+### Update and rebuild
+
+```bash
+git pull --ff-only
+make build
+make up
+```
+
+Community rules use revisions pinned by the project. When those pins change, remove the existing `rulesets/` directory only after confirming it contains nothing you need, then run `make rules` again.
+
+### Persistent data and limits
+
+- `scanner-data` stores scan history and result JSON.
+- `yara-local` stores YARA managed through the browser.
+- Uploaded artifacts are deleted after scanning by default.
+- The container defaults to 2 CPUs, 2 GB RAM and 256 PIDs. Uploads are limited to 100 MB, with two concurrent scans and a 180-second scan timeout.
+- For failures, inspect `./scripts/compose.sh ps` and `make logs`; change `C2_SIGNAL_PORT` when the host port is occupied.
+
 ## Interface
 
 ### Detection console
@@ -49,41 +134,6 @@ Key capabilities:
 - Rootless, read-only Docker runtime with dropped capabilities and resource limits.
 
 Uploaded artifacts are never executed. A clean result means only that the loaded rules did not match; it is not a safety verdict.
-
-## Quick start
-
-Requirements: Docker with Compose v2. Git is required only when installing optional community rules.
-
-Start with the bundled local rules:
-
-```bash
-make up
-```
-
-Install the pinned community rule repositories, then restart with the rules overlay:
-
-```bash
-make rules
-make up
-```
-
-Open <http://127.0.0.1:8080>.
-
-Useful commands:
-
-```bash
-make logs
-make down
-make test
-```
-
-The default bind address is localhost. To expose the service on every interface:
-
-```bash
-C2_SIGNAL_BIND=0.0.0.0 make up
-```
-
-Do not expose this mode to an untrusted network. The current API has no authentication and includes rule-management endpoints.
 
 ## Rule repositories
 
