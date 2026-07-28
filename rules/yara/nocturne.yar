@@ -13,6 +13,9 @@
     https://learn.microsoft.com/en-us/cpp/build/exception-handling-x64
 */
 
+import "math"
+import "pe"
+
 rule C2SIGNAL_NocturneLdr_Sample_HighConfidence
 {
     meta:

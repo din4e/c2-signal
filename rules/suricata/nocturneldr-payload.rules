@@ -20,7 +20,7 @@ alert http $HOME_NET any -> $EXTERNAL_NET any (
     msg:"NOCTURNE Possible msfvenom Meterpreter HTTPS staging URI";
     flow:to_server,established;
     http.uri; content:"/";
-    http.uri; pcre:"/^\/[A-Za-z0-9]{4,8}\/?$/U";
+    http.uri; pcre:"/^\/[A-Za-z0-9]{4,8}\/?/$";
     classtype:trojan-activity;
     metadata:mitre technique T1071.001, tactic TA0011;
     reference:url,github.com/din4e/c2-signal;
@@ -32,7 +32,7 @@ alert http $HOME_NET any -> $EXTERNAL_NET any (
 #  after handshake. The default LPORT is 4444, but the family commonly uses
 #  arbitrary high ports. Detecting the "Microsoft Windows" version string on
 #  any non-service port is a strong C2 indicator.
-alert tcp $HOME_NET any -> $EXTERNAL_NET !80,!443,!53,!25,!587,!465,!993,!995 (
+alert tcp $HOME_NET any -> $EXTERNAL_NET [!80,!443,!53,!25,!587,!465,!993,!995] (
     msg:"NOCTURNE Possible msfvenom shell_reverse_tcp banner";
     flow:to_server,established;
     content:"Microsoft Windows"; nocase; offset:0;
@@ -66,7 +66,7 @@ alert http $HOME_NET any -> $EXTERNAL_NET any (
     flow:to_server,established;
     http.user_agent; content:"Mozilla/5.0"; nocase;
     http.user_agent; content:"Windows NT"; nocase;
-    http.uri; pcre:"/^\/[A-Za-z0-9]{4,8}\/?$/U";
+    http.uri; pcre:"/^\/[A-Za-z0-9]{4,8}\/?/$";
     classtype:trojan-activity;
     metadata:mitre technique T1071.001, tactic TA0011;
     reference:url,github.com/din4e/c2-signal;
