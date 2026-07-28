@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        VERSION: "0.1.0"
+        VERSION: "0.1.1"
     image: c2-signal:local
     restart: unless-stopped
     ports:

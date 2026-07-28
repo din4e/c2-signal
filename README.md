@@ -4,7 +4,7 @@
 
 Docker 启动的多引擎制品检测工作台：Next.js 静态前端 + Go API + YARA + Chainsaw/Sigma + Suricata。
 
-当前版本：**v0.1.0** · 开源许可证：**MIT**
+当前版本：**v0.1.1** · 开源许可证：**MIT**
 
 ## Docker 部署与操作
 
@@ -130,8 +130,9 @@ make up
 |---|---|---|
 | 普通文件、二进制、文档、压缩包 | YARA | Yara-Rules、Elastic protections-artifacts、Cobalt Strike YARA、DIE YARA、本地规则 |
 | Cobalt Strike Beacon / BOF / 解码配置 | YARA + CS 专用分类 | Te-k、Elastic 与 `rules/yara/cobalt_strike_beacon.yar` |
+| NocturneLdr BYOUD / EAF bypass / Zilean Sleep 混淆 | YARA + 加载器分类 | `rules/yara/nocturne.yar` |
 | Windows `.evtx` | Chainsaw | SigmaHQ Windows 规则 |
-| `.pcap` / `.pcapng` | Suricata | `rules/suricata/` 与 Suricata 内置协议事件规则 |
+| `.pcap` / `.pcapng` | Suricata | `rules/suricata/`(含 `nocturneldr-payload.rules`)与 Suricata 内置协议事件规则 |
 
 Elastic `detection-rules`、Splunk `security_content` 和 Sigma 不是同一种可执行规则格式。Elastic/Splunk 规则需要各自的事件字段和查询后端，因此不会错误地应用到普通二进制文件。当前平台对上传 EVTX 使用 SigmaHQ；对普通制品使用 YARA；对 PCAP 使用 Suricata。引擎不会跨格式叠加，以避免把网络载荷字符串当作文件恶意特征。
 
@@ -140,7 +141,7 @@ Elastic `detection-rules`、Splunk `security_content` 和 Sigma 不是同一种�
 - 文件名、大小、媒体类型与 SHA-256。
 - 实际运行的检测器、状态、规则文件数和耗时。
 - 触发的规则名、检测器、严重度、分类和规则来源。
-- 最近扫描历史、命中数与 CS Beacon 专项命中数；点击历史记录可恢复完整结果。
+- 最近扫描历史、命中数与 CS Beacon / NocturneLdr 专项命中数；点击历史记录可恢复完整结果。
 - `clean`：所有适用检测器完整执行且无命中。
 - `matched`：至少一条规则触发。
 - `inconclusive`：检测器缺失、超时、跳过或出错；不能视为安全。

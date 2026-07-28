@@ -2,7 +2,7 @@
 
 C2 Signal is a defensive, multi-engine artifact triage console. It routes uploaded files to the detector that understands their format, then presents the exact rules that fired in a compact analyst interface.
 
-Current release: **v0.1.0** · License: **MIT**
+Current release: **v0.1.1** · License: **MIT**
 
 [中文](../README.md)
 
@@ -121,12 +121,13 @@ Create, edit, validate, enable and disable local rules from the browser.
 |---|---|---|
 | Binaries, archives and documents | YARA | Bundled local rules plus optional community repositories |
 | Windows EVTX | Chainsaw | Optional SigmaHQ rules |
-| PCAP / PCAPNG | Suricata | Local rules plus Suricata protocol-event rules |
+| PCAP / PCAPNG | Suricata | Local rules (incl. `nocturneldr-payload.rules`) plus Suricata protocol-event rules |
 
 Key capabilities:
 
 - Asynchronous uploads with SHA-256, media-type and executable-format identification.
 - Dedicated Cobalt Strike Beacon, BOF and decoded-configuration triage rules.
+- Dedicated NocturneLdr (BYOUD stack spoofing, EAF bypass, Zilean sleep obfuscation) triage rules.
 - Persistent scan history with result deletion.
 - Click-through YARA source viewer with exact rule-line highlighting.
 - Browser-based local YARA editing, validation, enable/disable and hot reload.
@@ -141,7 +142,7 @@ Uploaded artifacts are never executed. A clean result means only that the loaded
 
 The application remains usable without community rules:
 
-- Local Cobalt Strike YARA ships in the image.
+- Local Cobalt Strike and NocturneLdr YARA ship in the image.
 - Local YARA created in the UI persists in the `yara-local` volume.
 - Suricata retains its built-in protocol-event rules.
 - EVTX hunting is unavailable until Sigma rules are installed.
