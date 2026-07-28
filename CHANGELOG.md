@@ -2,6 +2,20 @@
 
 本项目的重要变更记录在此文件中。
 
+## [Unreleased]
+
+### 新增
+
+- NocturneLdr 专项 YARA 规则(`rules/yara/nocturne.yar`):
+  覆盖 BYOUD 动态函数表注入、EAF 旁路(ShieldedRead)、RtlRegisterWait + NtContinue
+  Sleep 混淆链(Zilean)、HeapWalk 堆掩码、DJB2 编译期哈希解析器、USER32-only IAT
+  伪装六大技术点,并提供 `C2SIGNAL_NocturneLdr_Family_Master` 总规则作为高置信
+  报警入口。每条规则附带 MITRE ATT&CK 映射、严重度与置信度元数据。
+
+### 文档
+
+- README(中/英)在检测路由表中增加 NocturneLdr 行,指向新规则文件。
+
 ## [0.1.0] - 2026-07-04
 
 首次公开版本。
