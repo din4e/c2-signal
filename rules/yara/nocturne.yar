@@ -184,8 +184,8 @@ rule C2SIGNAL_NocturneLdr_IATCamouflage_USER32Only
         7 of ($api_*) and
         pe.number_of_imports > 0 and
         pe.number_of_imports <= 10 and
-        for any i in (0..pe.number_of_imports - 1) : (
-            pe.dll_name(i) == "USER32.dll"
+        for all detail in pe.import_details : (
+            detail.library_name == "USER32.dll"
         )
 }
 

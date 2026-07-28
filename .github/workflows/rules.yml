@@ -37,8 +37,9 @@ jobs:
       - name: Validate rule syntax
         run: |
           set -e
+          mkdir -p /tmp/suri
           for f in rules/suricata/*.rules; do
             echo "==> $f"
             suricata --build-info
-            suricata -T -S "$f"
+            suricata -T -S "$f" -l /tmp/suri
           done
