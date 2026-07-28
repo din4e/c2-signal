@@ -17,6 +17,8 @@
 - README(中/英)在检测路由表中增加 NocturneLdr 行,指向新规则文件。
 - `rules/suricata/nocturneldr-payload.rules`(4 条 Suricata 规则)针对 NocturneLdr 默认执行的 msfvenom payload 的网络侧特征:stage URI、shell banner、high-port 出站、reverse_https 默认 UA。所有规则使用 `NOCTURNE` 前缀和 `mitre` 元数据,便于 SOC 分诊。
 - `docs/nocturneldr-detection.md` 检测手册:覆盖矩阵、误报控制、验证食谱、不接触样本的自检方法,以及与其他检测面(Sysmon/ETW)的协同建议。
+- `testdata/nocturneldr-strings.txt` 纯文本 fixture:列出 `nocturne.yar` 引用的字节序列与字符串,供本地与 CI 自检,**不包含任何可执行样本**。
+- `.github/workflows/rules.yml` PR 校验:在 `rules/**` 与 `docs/nocturneldr-detection.md` 变更时自动跑 YARA 编译与 Suricata `-T` 语法校验。
 
 ## [0.1.0] - 2026-07-04
 

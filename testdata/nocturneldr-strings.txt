@@ -1,0 +1,31 @@
+Safe detector fixture only. It is not executable and contains no NocturneLdr payload.
+
+This file holds the byte sequences and strings that rules/yara/nocturne.yar
+keys off, reproduced as printable escapes so CI / local self-checks can
+confirm rule compilation without shipping the loader itself.
+
+Format: <description> | <hex or string>
+
+XOR key (C2SIGNAL_NocturneLdr_Sample_HighConfidence $xor_key) | 37 B6 7C B2 91 5A 49 9F 1A 19 77 37 6F 87 E0 0A 7E 46 11 61 56 B6 70 27 97 2E CA 60 0D 8F 22 FE
+Ciphertext header (C2SIGNAL_NocturneLdr_Sample_HighConfidence $cipher) | CB FE FF 56 61 B2 89 9F 1A 19 36 66 2E D7 B2 5B 28 0E 20 B3 33 FE FB 75 F7 66 41 32 15 C7 A9 AC
+Sacrificial DLL literal (C2SIGNAL_NocturneLdr_Sample_HighConfidence $sacrificial_w / _a) | windows.storage.dll
+ShieldedRead dispatch (C2SIGNAL_NocturneLdr_EAFBypass_ShieldedRead $shield_dispatch) | 48 85 D2 74 ?? 48 89 C8 FF E2
+EAF bypass gadget body (C2SIGNAL_NocturneLdr_EAFBypass_ShieldedRead $gadget_body) | 48 8B 00 C3
+BYOUD head load (C2SIGNAL_NocturneLdr_BYOUD_DynamicFunctionTableWalk $mov_head) | 48 8B 05
+BYOUD sentinel load (C2SIGNAL_NocturneLdr_BYOUD_DynamicFunctionTableWalk $lea_sentinel) | 48 8D 0D
+BYOUD sentinel check (C2SIGNAL_NocturneLdr_BYOUD_DynamicFunctionTableWalk $cmp_sentinel) | 48 39 08
+CONTEXT_ALL value (C2SIGNAL_NocturneLdr_SleepObfuscation_ROPChain $ctx_all) | B8 0B 00 10 00
+HeapWalk call+test+jz (C2SIGNAL_NocturneLdr_HeapMasking_HeapWalk $heap_walk_loop) | E8 ?? ?? ?? ?? 85 C0 74 ??
+RDRAND seed (C2SIGNAL_NocturneLdr_HeapMasking_HeapWalk $rdrand) | 0F C7 F0
+DJB2 initial hash (C2SIGNAL_NocturneLdr_DJB2_CompileTimeHashResolver $hinit) | 38 15 00 00
+DJB2 shift 7 (C2SIGNAL_NocturneLdr_DJB2_CompileTimeHashResolver $shift7) | C1 E? 07
+DJB2 XOR key (C2SIGNAL_NocturneLdr_DJB2_CompileTimeHashResolver $xor_key) | 81 F? 37 13 00 00
+Camouflage API: MessageBoxA (C2SIGNAL_NocturneLdr_IATCamouflage_USER32Only) | MessageBoxA
+Camouflage API: SetCriticalSectionSpinCount | SetCriticalSectionSpinCount
+Camouflage API: GetWindowContextHelpId | GetWindowContextHelpId
+Camouflage API: GetWindowLongPtrW | GetWindowLongPtrW
+Camouflage API: RegisterClassW | RegisterClassW
+Camouflage API: IsWindowVisible | IsWindowVisible
+Camouflage API: ConvertDefaultLocale | ConvertDefaultLocale
+Camouflage API: MultiByteToWideChar | MultiByteToWideChar
+Camouflage API: IsDialogMessageW | IsDialogMessageW

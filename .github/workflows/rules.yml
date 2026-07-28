@@ -1,0 +1,44 @@
+name: rules
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - 'rules/**'
+      - 'docs/nocturneldr-detection.md'
+
+permissions:
+  contents: read
+
+jobs:
+  yara-compile:
+    name: YARA compile check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install YARA
+        run: sudo apt-get update && sudo apt-get install -y yara
+      - name: Compile every local rule
+        run: |
+          set -e
+          for f in rules/yara/*.yar; do
+            echo "==> $f"
+            yara -w "$f" /dev/null
+          done
+
+  suricata-validate:
+    name: Suricata rule validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Suricata
+        run: sudo apt-get update && sudo apt-get install -y suricata
+      - name: Validate rule syntax
+        run: |
+          set -e
+          for f in rules/suricata/*.rules; do
+            echo "==> $f"
+            suricata --build-info
+            suricata -T -S "$f"
+          done
