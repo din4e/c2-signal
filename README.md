@@ -132,7 +132,7 @@ make up
 | Cobalt Strike Beacon / BOF / 解码配置 | YARA + CS 专用分类 | Te-k、Elastic 与 `rules/yara/cobalt_strike_beacon.yar` |
 | NocturneLdr BYOUD / EAF bypass / Zilean Sleep 混淆 | YARA + 加载器分类 | `rules/yara/nocturne.yar` |
 | Windows `.evtx` | Chainsaw | SigmaHQ Windows 规则 |
-| `.pcap` / `.pcapng` | Suricata | `rules/suricata/` 与 Suricata 内置协议事件规则 |
+| `.pcap` / `.pcapng` | Suricata | `rules/suricata/`(含 `nocturneldr-payload.rules`)与 Suricata 内置协议事件规则 |
 
 Elastic `detection-rules`、Splunk `security_content` 和 Sigma 不是同一种可执行规则格式。Elastic/Splunk 规则需要各自的事件字段和查询后端，因此不会错误地应用到普通二进制文件。当前平台对上传 EVTX 使用 SigmaHQ；对普通制品使用 YARA；对 PCAP 使用 Suricata。引擎不会跨格式叠加，以避免把网络载荷字符串当作文件恶意特征。
 

@@ -121,7 +121,7 @@ Create, edit, validate, enable and disable local rules from the browser.
 |---|---|---|
 | Binaries, archives and documents | YARA | Bundled local rules plus optional community repositories |
 | Windows EVTX | Chainsaw | Optional SigmaHQ rules |
-| PCAP / PCAPNG | Suricata | Local rules plus Suricata protocol-event rules |
+| PCAP / PCAPNG | Suricata | Local rules (incl. `nocturneldr-payload.rules`) plus Suricata protocol-event rules |
 
 Key capabilities:
 
