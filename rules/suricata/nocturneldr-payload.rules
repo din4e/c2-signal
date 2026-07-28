@@ -16,7 +16,7 @@
 #  non-browser User-Agent this is a strong C2 staging signal. Legitimate
 #  services rarely expose single-segment random alphabetic URIs on
 #  high-numbered ports.
-alert http $HOME_NET any -> $EXTERNAL_NET any ( msg:"NOCTURNE Possible msfvenom Meterpreter HTTPS staging URI"; flow:to_server,established; http.uri; content:"/"; http.uri; pcre:"/^[\x2f][A-Za-z0-9]{4,8}[\x2f]?/$"; classtype:trojan-activity; metadata:mitre_technique_id T1071.001, mitre_tactic_id TA0011; reference:url,github.com/din4e/c2-signal; sid:1000001; rev:1; )
+alert http $HOME_NET any -> $EXTERNAL_NET any ( msg:"NOCTURNE Possible msfvenom Meterpreter HTTPS staging URI"; flow:to_server,established; http.uri; content:"/"; http.uri; pcre:"/^[\x2f][A-Za-z0-9]{4,8}[\x2f]?$/"; classtype:trojan-activity; metadata:mitre_technique_id T1071.001, mitre_tactic_id TA0011; reference:url,github.com/din4e/c2-signal; sid:1000001; rev:1; )
 
 # --- 2. shell_reverse_tcp banner on non-standard port ------------------------
 #  windows/x64/shell_reverse_tcp immediately sends a Windows version banner
@@ -36,4 +36,4 @@ alert tcp $HOME_NET any -> $EXTERNAL_NET 1024:65535 ( msg:"NOCTURNE Outbound TCP
 # --- 4. msfvenom reverse_https default User-Agent ----------------------------
 #  The default Meterpreter reverse_https payload uses a Windows-shaped
 #  User-Agent. Combined with the staging URI rule above this raises confidence.
-alert http $HOME_NET any -> $EXTERNAL_NET any ( msg:"NOCTURNE Possible msfvenom reverse_https default User-Agent"; flow:to_server,established; http.user_agent; content:"Mozilla/5.0"; nocase; http.user_agent; content:"Windows NT"; nocase; http.uri; pcre:"/^[\x2f][A-Za-z0-9]{4,8}[\x2f]?/$"; classtype:trojan-activity; metadata:mitre_technique_id T1071.001, mitre_tactic_id TA0011; reference:url,github.com/din4e/c2-signal; sid:1000004; rev:1; )
+alert http $HOME_NET any -> $EXTERNAL_NET any ( msg:"NOCTURNE Possible msfvenom reverse_https default User-Agent"; flow:to_server,established; http.user_agent; content:"Mozilla/5.0"; nocase; http.user_agent; content:"Windows NT"; nocase; http.uri; pcre:"/^[\x2f][A-Za-z0-9]{4,8}[\x2f]?$/"; classtype:trojan-activity; metadata:mitre_technique_id T1071.001, mitre_tactic_id TA0011; reference:url,github.com/din4e/c2-signal; sid:1000004; rev:1; )
