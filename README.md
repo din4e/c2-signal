@@ -4,7 +4,7 @@
 
 Docker 启动的多引擎制品检测工作台：Next.js 静态前端 + Go API + YARA + Chainsaw/Sigma + Suricata。
 
-当前版本：**v0.1.0** · 开源许可证：**MIT**
+当前版本：**v0.1.1** · 开源许可证：**MIT**
 
 ## Docker 部署与操作
 

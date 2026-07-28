@@ -2,7 +2,7 @@
 
 C2 Signal is a defensive, multi-engine artifact triage console. It routes uploaded files to the detector that understands their format, then presents the exact rules that fired in a compact analyst interface.
 
-Current release: **v0.1.0** · License: **MIT**
+Current release: **v0.1.1** · License: **MIT**
 
 [中文](../README.md)
 
